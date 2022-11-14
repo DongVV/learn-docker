@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  workspace:
+    image: wyveo/nginx-php-fpm:php74
+    build:
+      context: .
+      # dockerfile: ./docker/Dockerfile
+    container_name: kd_app
+    working_dir: /var/www/html
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx_log:/var/log/nginx
+      - ./docker/php-fpm/php-fpm.log:/var/log/php-fpm.log
+      - ./docker/config/app.conf:/etc/nginx/conf.d/app.conf
+    networks:
+      - net
+
+  mysql:
+    image: mysql:5.7
+    container_name: kd_mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql/
+    environment:
+      MYSQL_DATABASE: kd_mysql
+      MYSQL_ROOT_PASSWORD: secret
+    networks:
+      - net
+
+#Docker Networks
+networks:
+  net:
+    driver: bridge
+
+#Volumes
+volumes:
+  dbdata:
+    driver: local
